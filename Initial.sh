@@ -27,9 +27,13 @@ then
 fi
 
 #setting language
-LC_ALL=en_US.UTF-8
-LANG=en_US.UTF-8
+cat >> ~/.bashrc <<END
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+END
 
+source ~/.bashrc
 
 #step 1 : update 
 yum -y update ||
@@ -60,6 +64,7 @@ chmod 700 /home/$ACCOUNT/.ssh
 #step 7 : give new user right
 cat  >> /etc/sudoers <<END
 $ACCOUNT ALL=(ALL:ALL) ALL
+
 END
 
 #step 8 : change all limited option
