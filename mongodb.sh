@@ -26,7 +26,7 @@ sudo yum install -y mongodb-org
 #step 3 :mongo start
 service mongod start
 
-mkdir -p /home/mongodb/data
+mkdir -p /home/mongodb
 
 #step 4 : turn on when the machine turn on
 chkconfig --levels 345 mongod on
