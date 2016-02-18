@@ -46,31 +46,30 @@ server {
     root   /home/www/default;
     index  index.php index.html index.htm; 
     
-    location ~ \.php$ 
-    {
-      try_files $uri =404;
-      fastcgi_pass 127.0.0.1:9000;
-      fastcgi_index index.php;
-      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-      include fastcgi_params;
+    location ~ \.php$ {
+    try_files $uri =404;
+    fastcgi_pass 127.0.0.1:9000;
+    fastcgi_index index.php;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    include fastcgi_params;
     }
 
 }
 END
 
-#step 5 : settle entrance directory
+#step 4 : settle entrance directory
 mkdir -p /home/www/default
 #change competence(apache=>nginx)
 sed -i "s/apache/nginx/g" /etc/php-fpm-5.5.d/www.conf
 chown nginx:nginx -R /home/www
 
-#step 4 : turn on nginx
-service nginx start
-service php-fpm start
-chkconfig nginx on
-chkconfig php-fpm on
 
+#------install everything about php-----#
 #step 5 : memcache's php
+yum -y install php55 ||
+{
+  echo 'can not install php55'
+}
 yum -y install php55-pecl-memcache||
 {
   echo 'can not install php5 memcache'
@@ -114,11 +113,24 @@ yum -y install openssl-devel ||
 {
   echo 'openssl-devel can not install'
 }
+
 pecl -y install mongo || 
 {
-  echo 'install mongo'
+  echo 'mongo can not install'
+}
+
+yum -y install php55-pecl-imagick || 
+{
+  echo 'php55-pecl-imagick can not install '
 }
 
 cat >> /etc/php.ini <<END
 extension=mongo.so
+extension=imagick.so
 END
+
+#step 9 : turn on nginx
+service nginx start
+service php-fpm start
+chkconfig nginx on
+chkconfig php-fpm on
