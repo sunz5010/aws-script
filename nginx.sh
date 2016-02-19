@@ -154,9 +154,12 @@ yum -y install php55-pecl-imagick ||
   echo 'php55-pecl-imagick can not install '
 }
 
+yum -y install php55-pdo || {
+  echo 'php55-pdo can not install '
+}
+
 cat >> /etc/php.ini <<END
 extension=mongo.so
-extension=imagick.so
 END
 
 #phalcon extension
