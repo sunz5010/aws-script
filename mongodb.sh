@@ -20,13 +20,16 @@ gpgcheck=0
 enabled=1 
 END
 
-#step 2 :install mongodb
+#step 4 :allow remote connections
+sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mongod.conf
+
+#step 3 :install mongodb
 sudo yum install -y mongodb-org
 
-#step 3 :mongo start
+#step 4 :mongo start
 service mongod start
 
 mkdir -p /home/mongodb
 
-#step 4 : turn on when the machine turn on
+#step 5 : turn on when the machine turn on
 chkconfig --levels 345 mongod on
