@@ -24,3 +24,7 @@ git clone --depth=1 git://github.com/phalcon/cphalcon.git
 cd cphalcon/build
 
 ./install
+
+#reset nginx
+service nginx start
+service php-fpm start

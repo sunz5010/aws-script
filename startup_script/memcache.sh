@@ -15,11 +15,16 @@ yum -y install memcached||
 {
   echo "Could not install memcached"
 }
+
 #this is the library of memcached
-yum install libmemcached|| 
+yum -y install libmemcached|| 
 {
   echo "Could not install libmemcached"
 }
+
+#change ssh port
+sed -i -e 's/#Port 22/Port 22168/i' /etc/ssh/sshd_config
+service sshd restart 
 
 #setting memcached capacity
 sed -i 's/1024/10240/g' /etc/sysconfig/memcached

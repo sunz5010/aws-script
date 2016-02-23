@@ -23,6 +23,10 @@ END
 #step 4 :allow remote connections
 sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mongod.conf
 
+#step 3 :change ssh port
+sed -i -e 's/#Port 22/Port 22168/i' /etc/ssh/sshd_config
+service sshd restart 
+
 #step 3 :install mongodb
 sudo yum install -y mongodb-org
 

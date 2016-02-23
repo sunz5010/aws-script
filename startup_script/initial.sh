@@ -26,15 +26,6 @@ then
     exit 0
 fi
 
-#setting language
-cat >> ~/.bashrc <<END
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LANGUAGE=en_US.UTF-8
-END
-
-source ~/.bashrc
-
 #step 1 : update 
 yum -y update ||
 {
@@ -52,6 +43,14 @@ service sshd restart
 useradd $ACCOUNT
 passwd $ACCOUNT
 #userdel -fr 'ec2-user' => this one is danger
+#setting language
+cat >> ~/.bashrc <<END
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+END
+
+source ~/.bashrc
 
 #step 5 : add key to the new user
 mkdir -p /home/$ACCOUNT/.ssh
@@ -64,7 +63,6 @@ chmod 700 /home/$ACCOUNT/.ssh
 #step 7 : give new user right
 cat  >> /etc/sudoers <<END
 $ACCOUNT ALL=(ALL:ALL) ALL
-
 END
 
 #step 8 : change all limited option
