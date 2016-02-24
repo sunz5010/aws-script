@@ -10,7 +10,18 @@ then
   exit 0
 fi
 
-#step 1 : install mongodb - build mongo yum
+
+#step 1 : change ssh port
+sed -i -e 's/#Port 22/Port 22168/i' /etc/ssh/sshd_config
+service sshd restart 
+
+#step 2 : change locale
+cat >> /etc/profile <<END
+LC_ALL=en_US.UTF-8  
+export LC_ALL
+END
+
+#step 3 : install mongodb - build mongo yum
 touch /etc/yum.repos.d/mongodb-org-3.2.repo
 cat >> /etc/yum.repos.d/mongodb-org-3.2.repo <<END
 [mongodb-org-3.2]
@@ -20,20 +31,18 @@ gpgcheck=0
 enabled=1 
 END
 
-#step 4 :allow remote connections
-sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mongod.conf
-
-#step 3 :change ssh port
-sed -i -e 's/#Port 22/Port 22168/i' /etc/ssh/sshd_config
-service sshd restart 
-
-#step 3 :install mongodb
+#step 4 :install mongodb
 sudo yum install -y mongodb-org
 
-#step 4 :mongo start
-service mongod start
+
+#step 5 :allow remote connections
+sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mongod.conf
+
 
 mkdir -p /home/mongodb
 
-#step 5 : turn on when the machine turn on
+#step 6 : turn on when the machine turn on
 chkconfig --levels 345 mongod on
+
+#reboot to check all setting
+reboot

@@ -5,7 +5,7 @@
 #php55-fpm config locate => /etc/php-fpm.d/www.conf
 #
 #
-#
+
 printhelp() {
     echo "
        this file can install nginx , php55-fpm,
@@ -20,105 +20,155 @@ then
   exit 0
 fi
 
-#step 1 : install nginx
+#step 1 : change ssh port
+sed -i -e 's/#Port 22/Port 22168/i' /etc/ssh/sshd_config
+service sshd restart 
+
+#step 2 : change locale
+cat >> /etc/profile <<END
+LC_ALL=en_US.UTF-8  
+export LC_ALL
+END
+
+#step 3 : install nginx
 yum -y install nginx || {
   echo "Could not install nginx"
 }
 
-#step 2 : install php55-fpm
+#step 4 : install php55-fpm
 yum -y install php55-fpm || {
   echo "Could not install php55-fpm" 
 }
 
-#step 3 : nginx compile php file
+#step 5 : nginx compile php file
 #change worker processes
-sed -i 's/worker_processes  auto/worker_processes  2/p' nginx.conf 
+cat > /etc/nginx/nginx.conf <<END
+user  nginx;
+worker_processes 2
+
+#set error log position
+error_log  /var/log/nginx/error.log;
+
+events {
+  worker_connections  10240;
+}
+
+http {
+  include       /etc/nginx/mime.types;
+  default_type  application/octet-stream;
+
+   sendfile        on;
+   
+   keepalive_timeout  65;
+   
+   gzip  on;
+}
+END
+
+
+
+
+#step 6 : build new conf
+echo -n 'what web you want to create? '
+read web
+echo -n 'your server_name? '
+read server
 
 #this file will not be created in AWS EC2 
 #setting all base 
-touch /etc/nginx/conf.d/default.conf
-cat >> /etc/nginx/conf.d/default.conf <<END
+touch /etc/nginx/conf.d/$web.conf
+cat >> /etc/nginx/conf.d/$web.conf <<END
 server {
-    # setting port and name
-    listen       80;
-    server_name  localhost;
-    
-    #delete nginx version information
-    server_tokens off;
-    
-    #log file
+    server_name $server;
+    root /home/www/$web/public/;
+    index index.html index.php index.htm;
+ 
     access_log /var/log/nginx/access.log;
     error_log /var/log/nginx/error.log;
-    
-
-    # where is the root directory
-    root   /home/www/default;
-    # default entrance name
-    index  index.php index.html index.htm;
  
-    #error,php setting will setting in the config's file bottom /home/www/default 
-    #deny & allow don't set
-    
-    #this is for base setting php
-    #/home/www/default/*.conf can override this one
-    
-    #include location
-    include /home/www/default/*.conf;
+    # set expiration of assets to MAX for caching
+    location ~* \.(ico|css|js|gif|jpe?g|png|ogg|ogv|svg|svgz|eot|otf|woff)(\?.+)?$ {
+        expires max;
+        log_not_found off;
+    }
+ 
+    server_tokens off;
+ 
+    # framework rewrite
+    location / {
+        try_files \$uri \$uri/ /index.php;
+    }
+ 
+    location ~* \.php$ {
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        fastcgi_split_path_info ^(.+\.php)(.*)$;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+    }
 }
 END
 
-#step 4 : settle entrance directory
-mkdir -p /home/www/default
-#setting web detail setting
-touch /home/www/default/default.conf
-cat >> /home/www/default/default.conf <<END
-location ~* \.php$ {
-  fastcgi_pass 127.0.0.1:9000;
-  fastcgi_index index.php;
-  fastcgi_split_path_info ^(.+\.php)(.*)$;
-  include fastcgi_params;
-  fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-}
-END
-#change competence(apache=>nginx)
-sed -i "s/apache/nginx/g" /etc/php-fpm-5.5.d/www.conf
-chown nginx:nginx -R /home/www
 #create the file testing php 
-touch /home/www/default/index.php
-cat >> /home/www/default/index.php << END
+mkdir -p /home/www/$web/public
+touch /home/www/$web/public/index.php
+cat >> /home/www/$web/index.php << END
 <?php
 phpinfo();
 END
+chown nginx:nginx -R /home/www
 
 
-#step 5 : create session file
+#step 7 :change competence(apache=>nginx)
+sed -i "s/apache/nginx/g" /etc/php-fpm-5.5.d/www.conf
+
+#step 8 : create session file
 mkdir /var/lib/php/session
 chown nginx:nginx /var/lib/php/session
 
-#step 6 : memcache's php
+
+#step 9 : logrotate
+cat > /etc/logrotate.d/nginx <<END
+/var/log/nginx/*log{
+  create 0644 nginx nginx
+  daily
+  rotate 10
+    dateext
+    olddir rotate
+  missingok
+  notifempty
+    #compress
+  sharedscripts
+  postrotate
+    /etc/init.d/nginx reopen_logs
+  endscript
+}
+END
+
+
+#step 10 : all about php
 yum -y install php55 ||
 {
   echo 'can not install php55'
 }
+
 yum -y install php55-pecl-memcache||
 {
   echo 'can not install php5 memcache'
 }
 
-#step 7 : install mbstring for multi-byte
 yum -y install php55-mbstring||
 {
   echo 'can not install php5 memcache'
 }
 
-#step 8 : install php library
 yum -y install php55-gd||
 {
   echo 'can not install php library'
 }
 
 
-#step 9 : Development environment => for mongodb
+#Development environment => for mongodb
 yum -y install php55-devel || 
 {
   echo 'can not install php55-devel'
@@ -134,19 +184,16 @@ yum -y install gcc ||
 {
   echo 'can not install gcc'
 }
+
 yum -y install php-pear ||
 {
   echo 'can not install php-pear'
 }
+
 #if don't install this one , pecl can't install
 yum -y install openssl-devel || 
 {
   echo 'openssl-devel can not install'
-}
-
-pecl install mongo || 
-{
-  echo 'mongo can not install'
 }
 
 yum -y install php55-pecl-imagick || 
@@ -156,6 +203,11 @@ yum -y install php55-pecl-imagick ||
 
 yum -y install php55-pdo || {
   echo 'php55-pdo can not install '
+} 
+# need install behind pdo
+pecl install mongo || 
+{
+  echo 'mongo can not install'
 }
 
 cat >> /etc/php.ini <<END
@@ -169,8 +221,11 @@ cat > /etc/php.d/phalcon.ini <<END
 extension=phalcon.so
 END
 
-#step 4 : turn on nginx
+#step 11 : turn on nginx
 service nginx start
 service php-fpm start
-chkconfig nginx one
+chkconfig nginx on
 chkconfig php-fpm on
+
+./phalcon.sh
+

@@ -5,15 +5,29 @@
 printhelp() {
     echo "
        this file is for installing phalcon but library does not be installed,
-       executing this file behind nginx.sh , 
+       executing this file behind nginx.sh ,
+       if you only want to install this file please add -f ,
        phalcon compiling need enough memory.
     "
 }
 
-if [ `id -u` -ne 0 ]
-then
-  echo "Need root, try with sudo"
-  exit 0
+if [ "$1" != "" ]; then
+    case "$1" in
+        -f    | --username )             break;;
+        -h    | --help )            echo "$(printhelp)"; exit; shift; break ;;
+        * ) echo "wrong operating"; exit;
+    esac
+
+else
+    echo "wrong operating"; exit;
+fi
+
+
+echo -n 'you really only want to  install this file (yes/no)?'
+read FORCE
+
+if [ $FORCE != "yes" ]; then
+    exit;
 fi
 
 #use git to install phalcon
@@ -25,6 +39,5 @@ cd cphalcon/build
 
 ./install
 
-#reset nginx
-service nginx start
-service php-fpm start
+#reboot to check all setting
+reboot

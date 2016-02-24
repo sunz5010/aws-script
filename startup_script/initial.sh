@@ -19,7 +19,6 @@ then
   exit 0
 fi
 
-
 if [ -z $ACCOUNT ]
 then
     echo 'need to set account'
@@ -42,15 +41,12 @@ service sshd restart
 #step 4 : add user
 useradd $ACCOUNT
 passwd $ACCOUNT
-#userdel -fr 'ec2-user' => this one is danger
-#setting language
-cat >> ~/.bashrc <<END
-export LC_ALL=en_US.UTF-8
-export LANG=en_US.UTF-8
-export LANGUAGE=en_US.UTF-8
-END
 
-source ~/.bashrc
+#setting language
+cat >> /etc/profile <<END
+LC_ALL=en_US.UTF-8  
+export LC_ALL
+END
 
 #step 5 : add key to the new user
 mkdir -p /home/$ACCOUNT/.ssh
