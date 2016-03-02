@@ -1,10 +1,15 @@
-#test sudo
-#nginx config locate => /etc/nginx/nginx.conf
-#      host          => /etc/nginx/conf.d/default.conf
-#
-#php55-fpm config locate => /etc/php-fpm.d/www.conf
-#
-#
+#webserver install
+#1.check initial or not
+#2.install nginx
+#3.install php55-fpm
+#4.nginx compile php file
+#5.build new conf
+#6.change competence
+#7.create session file
+#8.logrotate
+#9.all about php
+#10.turn on nginx
+#11.install phalcon
 
 printhelp() {
     echo "
@@ -14,37 +19,45 @@ printhelp() {
     "
 }
 
+while [ "$1" != "" ]; do
+  case "$1" in
+    -u    | --username )             ACCOUNT=$2; shift 2 ;;
+    -p    | --password )             PASSWORD=$2; shift 2 ;;
+    -h    | --help )            echo "$(printhelp)"; exit; shift; break ;;
+  esac
+done
+
 if [ `id -u` -ne 0 ]
 then
   echo "Need root, try with sudo"
   exit 0
 fi
 
-#step 1 : change ssh port
-sed -i -e 's/#Port 22/Port 22168/i' /etc/ssh/sshd_config
-service sshd restart 
+#step 1 :check initial.sh 
+if [ ! -e /tmp/initial ]; then
+  while [ -z $ACCOUNT ]
+  do
+      echo 'need to set account'
+      read ACCOUNT
+  done
+  ./initial.sh -u $ACCOUNT -p ${PASSWORD}
+fi
 
-#step 2 : change locale
-cat >> /etc/profile <<END
-LC_ALL=en_US.UTF-8  
-export LC_ALL
-END
-
-#step 3 : install nginx
+#step 2 : install nginx
 yum -y install nginx || {
   echo "Could not install nginx"
 }
 
-#step 4 : install php55-fpm
+#step 3 : install php55-fpm
 yum -y install php55-fpm || {
   echo "Could not install php55-fpm" 
 }
 
-#step 5 : nginx compile php file
+#step 4 : nginx compile php file
 #change worker processes
 cat > /etc/nginx/nginx.conf <<END
 user  nginx;
-worker_processes 2
+worker_processes 2;
 
 #set error log position
 error_log  /var/log/nginx/error.log;
@@ -56,19 +69,22 @@ events {
 http {
   include       /etc/nginx/mime.types;
   default_type  application/octet-stream;
-
-   sendfile        on;
+  
+  log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                      '\$status $body_bytes_sent "\$http_referer" '
+                      '"\$http_user_agent" "\$http_x_forwarded_for"';
+  
+  sendfile        on;
    
-   keepalive_timeout  65;
+  keepalive_timeout  65;
    
-   gzip  on;
+  gzip  on;
+   
+  include /etc/nginx/conf.d/*.conf;
 }
 END
 
-
-
-
-#step 6 : build new conf
+#step 5 : build new conf
 echo -n 'what web you want to create? '
 read web
 echo -n 'your server_name? '
@@ -79,55 +95,83 @@ read server
 touch /etc/nginx/conf.d/$web.conf
 cat >> /etc/nginx/conf.d/$web.conf <<END
 server {
+    listen 80;
+
     server_name $server;
-    root /home/www/$web/public/;
-    index index.html index.php index.htm;
- 
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
- 
-    # set expiration of assets to MAX for caching
-    location ~* \.(ico|css|js|gif|jpe?g|png|ogg|ogv|svg|svgz|eot|otf|woff)(\?.+)?$ {
-        expires max;
-        log_not_found off;
-    }
- 
-    server_tokens off;
- 
-    # framework rewrite
-    location / {
-        try_files \$uri \$uri/ /index.php;
-    }
- 
-    location ~* \.php$ {
-        fastcgi_pass 127.0.0.1:9000;
-        fastcgi_index index.php;
-        fastcgi_split_path_info ^(.+\.php)(.*)$;
+
+    index index.php index.html index.htm;
+
+    error_log /var/log/nginx/error_$web.log;
+    access_log /var/log/nginx/access_$web.log main;
+
+    root /home/www/$web/public;
+
+    # [phalcon part]
+    #try_files \$uri \$uri/ @rewrite;
+    #location @rewrite {
+    #    rewrite ^(.*)$ /index.php?_url=\$1;
+    #}
+
+    location ~ \.php$ {
+        fastcgi_pass    127.0.0.1:9000;
+        fastcgi_index   index.php;
+        fastcgi_param   SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        try_files       \$uri =404;
+    }
+
+    location ~ /\.ht {
+        deny all;
     }
 }
 END
 
-#create the file testing php 
+echo -n 'please enter db IP which you want to connect? '
+read DBIP
+
+#create the file testing php and mongo
 mkdir -p /home/www/$web/public
 touch /home/www/$web/public/index.php
-cat >> /home/www/$web/index.php << END
+cat >> /home/www/$web/public/index.php << END
 <?php
+//php test
 phpinfo();
+
+//mongo test
+\$dbhost = '$DBIP';
+\$dbname = 'my_mongodb';
+
+\$mongoClient = new \MongoClient('mongodb://' . \$dbhost);
+\$db = \$mongoClient->\$dbname;
+
+\$cUsers = \$db->users;
+\$user = array(
+    'first_name' => 'SJ',
+    'last_name' => 'Mongo',
+    'roles' => array('developer','bugmaker')
+);
+
+\$cUsers->save($user);
+\$user = array(
+    'first_name' => 'SJ',
+    'last_name' => 'Mongo'
+);
+
+\$user = $cUsers->findOne($user);
+echo 'mongo connect successfully if the bottom data be showed!'
+print_r(\$user);
 END
+
 chown nginx:nginx -R /home/www
 
-
-#step 7 :change competence(apache=>nginx)
+#step 6 :change competence(apache=>nginx)
 sed -i "s/apache/nginx/g" /etc/php-fpm-5.5.d/www.conf
 
-#step 8 : create session file
+#step 7 : create session file
 mkdir /var/lib/php/session
 chown nginx:nginx /var/lib/php/session
 
-
-#step 9 : logrotate
+#step 8 : logrotate
 cat > /etc/logrotate.d/nginx <<END
 /var/log/nginx/*log{
   create 0644 nginx nginx
@@ -146,7 +190,7 @@ cat > /etc/logrotate.d/nginx <<END
 END
 
 
-#step 10 : all about php
+#step 9 : all about php
 yum -y install php55 ||
 {
   echo 'can not install php55'
@@ -221,11 +265,12 @@ cat > /etc/php.d/phalcon.ini <<END
 extension=phalcon.so
 END
 
-#step 11 : turn on nginx
+#step 10 : turn on nginx
 service nginx start
 service php-fpm start
 chkconfig nginx on
 chkconfig php-fpm on
 
-./phalcon.sh
+#step 11 : install phalcon
+./phalcon.sh -f
 

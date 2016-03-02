@@ -5,21 +5,29 @@ printhelp() {
     "
 }
 
+while [ "$1" != "" ]; do
+  case "$1" in
+    -u    | --username )             ACCOUNT=$2; shift 2 ;;
+    -p    | --password )             PASSWORD=$2; shift 2 ;;
+    -h    | --help )            echo "$(printhelp)"; exit; shift; break ;;
+  esac
+done
+
 if [ `id -u` -ne 0 ]
 then
   echo "Need root, try with sudo"
   exit 0
 fi
 
-#change ssh port
-sed -i -e 's/#Port 22/Port 22168/i' /etc/ssh/sshd_config
-service sshd restart 
-
-#change locale
-cat >> /etc/profile <<END
-LC_ALL=en_US.UTF-8  
-export LC_ALL
-END
+#check initial.sh 
+if [ ! -e /tmp/initial ]; then
+  while [ -z $ACCOUNT ]
+  do
+      echo 'need to set account'
+      read ACCOUNT
+  done
+  ./initial.sh -u $ACCOUNT -p ${PASSWORD}
+fi
 
 yum -y install memcached|| 
 {

@@ -13,7 +13,7 @@ printhelp() {
 
 if [ "$1" != "" ]; then
     case "$1" in
-        -f    | --username )             break;;
+        -f    | --force )             break;;
         -h    | --help )            echo "$(printhelp)"; exit; shift; break ;;
         * ) echo "wrong operating"; exit;
     esac
@@ -22,16 +22,12 @@ else
     echo "wrong operating"; exit;
 fi
 
-
-echo -n 'you really only want to  install this file (yes/no)?'
+echo -n 'you really want to  install phalcon.sh (yes/no)?'
 read FORCE
 
 if [ $FORCE != "yes" ]; then
     exit;
 fi
-
-#use git to install phalcon
-yum -y install git
 
 git clone --depth=1 git://github.com/phalcon/cphalcon.git
 
