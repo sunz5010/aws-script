@@ -60,7 +60,8 @@ user  nginx;
 worker_processes 2;
 
 #set error log position
-error_log  /var/log/nginx/error.log;
+#every nginx web to set 
+#error_log  /var/log/nginx/error.log;
 
 events {
   worker_connections  10240;
@@ -76,7 +77,7 @@ http {
   
   sendfile        on;
    
-  keepalive_timeout  65;
+  keepalive_timeout  0;
    
   gzip  on;
    
@@ -188,7 +189,8 @@ cat > /etc/logrotate.d/nginx <<END
   endscript
 }
 END
-
+#creat folder to put rotate file
+mkdir /var/log/nginx/rotate
 
 #step 9 : all about php
 yum -y install php55 ||
