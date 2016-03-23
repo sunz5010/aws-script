@@ -67,7 +67,12 @@ LC_ALL=en_US.UTF-8
 export LC_ALL
 END
 
-#step 6 : add user
+#step 6 : install nvm & npm
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
+nvm install 5 
+npm install -g pm2
+
+#step 7 : add user
 CHECKACCOUNT=`grep -n $ACCOUNT /etc/passwd`
 echo $CHECKACCOUNT
 if [ -z $CHECKACCOUNT ]; then
