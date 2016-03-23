@@ -201,9 +201,14 @@ yum -y install php55-pecl-memcache||
   echo 'can not install php5 memcache'
 }
 
+yum -y install php55-pecl-memcached||
+{
+  echo 'can not install php5 memcached'
+}
+
 yum -y install php55-mbstring||
 {
-  echo 'can not install php5 memcache'
+  echo 'can not install php55-mbstring'
 }
 
 yum -y install php55-gd||
@@ -253,6 +258,10 @@ pecl install mongo ||
 {
   echo 'mongo can not install'
 }
+pecl install mongodb || 
+{
+  echo 'mongodb can not install'
+}
 
 cat >> /etc/php.ini <<END
 extension=mongo.so
@@ -263,6 +272,20 @@ touch /etc/php.d/phalcon.ini
 cat > /etc/php.d/phalcon.ini <<END
 [phalcon]
 extension=phalcon.so
+END
+
+#mongodb extension
+touch /etc/php.d/mongo.ini
+cat > /etc/php.d/mongo.ini <<END
+[mongo]
+extension=mongo.so
+END
+
+#mongo extension
+touch /etc/php.d/mongodb.ini
+cat > /etc/php.d/mongodb.ini <<END
+[mongodb]
+extension=mongodb.so
 END
 
 #step 10 : turn on nginx
