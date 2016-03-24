@@ -1,11 +1,10 @@
 #this one is for manager ec2 
 #1.key name
-#2.取得帳號
-#3.setting webserver
-#4.setting database
-#5.setting memcache
-#6.鑰匙處理 & 初始化(初始化將刪除ec2-user文件夾)
-#7.重啟
+#2.setting webserver
+#3.setting database
+#4.setting memcache
+#5.新建帳號帳號 & 鑰匙處理 & 初始化(初始化將刪除ec2-user文件夾)
+#6.重啟
 
 printhelp() {
     echo "
@@ -30,19 +29,7 @@ do
 done
 
 
-#step 2 : 新建帳戶
-echo -n 'add new user name : '
-read ACCOUNT
-while [ -z $ACCOUNT ]
-do
-    echo 'need to set account'
-    read ACCOUNT
-done 
-
-useradd $ACCOUNT
-passwd $ACCOUNT
-
-#step 3 : webserver
+#step 2 : webserver
 echo -n 'install webserver(yes/no/stop)? '
 read installWebserver
 if [ $installWebserver == 'yes' ]; then
@@ -52,7 +39,7 @@ if [ $installWebserver == 'yes' ]; then
     ssh -i $key'.pem' "ec2-user@$webserver"  "sudo ./nginx.sh "
 fi
 
-#step 4 : database
+#step 3 : database
 echo -n 'install mongodb(yes/no/stop)? '
 read installMongodb
 if [ $installMongodb == 'yes' ]; then
@@ -64,7 +51,7 @@ elif [ $installMongodb == 'stop' ]; then
     exit 0 ;
 fi
 
-#step 5 : memcache
+#step 4 : memcache
 echo -n 'install memcache(yes/no/stop)? '
 read installMemcache
 if [ $installMemcache == 'yes' ]; then
@@ -76,12 +63,35 @@ elif [ $installMemcache == 'stop' ]; then
     exit 0 ;
 fi
 
-#step 6 : 鑰匙處理 & 初始化
-cp /home/ec2-user/package/$key'.pem' /home/$key'.pem'
-./initial.sh -u $ACCOUNT 
-mv /home/$key'.pem' /home/$ACCOUNT/
 
-#step 7 : delete default user
+
+#step 5 : 新建帳戶
+echo -n 'add new user name : '
+read ACCOUNT
+while [ -z $ACCOUNT ]
+do
+    echo 'need to set account'
+    read ACCOUNT
+done 
+
+useradd $ACCOUNT
+passwd $ACCOUNT
+
+# 新增ssh key到新的使用者資料夾
+mkdir -p /home/$ACCOUNT/.ssh
+cp /home/ec2-user/.ssh/authorized_keys /home/$ACCOUNT/.ssh/authorized_keys
+
+# 給予新使用者sudo權限
+cat  >> /etc/sudoers <<END
+$ACCOUNT ALL=(ALL:ALL) ALL
+END
+
+# 鑰匙處理 & 初始化
+cp $key'.pem' /home/$ACCOUNT/$key'.pem'
+./initial.sh 
+
+
+#step 6 : 刪除預設使用者
 find / -user ec2-user -exec rm -r {} \;
 default=`grep -n 'ec2-user' /etc/passwd | cut -d : -f 1`
 sed "$default'd'" /etc/passwd
