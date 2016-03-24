@@ -44,11 +44,13 @@ sudo yum install -y mongodb-org
 
 #step 5 :allow remote connections
 sed -i "s/127.0.0.1/0.0.0.0/g" /etc/mongod.conf
+sed -i "s/\/var\/lib\/mongo/\/home\/mongodb/" /etc/mongod.conf
 
-
+#step 6 : create fold and chown
 mkdir -p /home/mongodb
+chown mongod:mongod -R /home/mongodb
 
-#step 6 : turn on when the machine turn on
+#step 7 : turn on when the machine turn on
 chkconfig --levels 345 mongod on
 
 #reboot to check all setting
