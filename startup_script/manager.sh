@@ -80,6 +80,7 @@ passwd $ACCOUNT
 # 新增ssh key到新的使用者資料夾
 mkdir -p /home/$ACCOUNT/.ssh
 cp /home/ec2-user/.ssh/authorized_keys /home/$ACCOUNT/.ssh/authorized_keys
+chown $ACCOUNT: -R /home/$ACCOUNT
 
 # 給予新使用者sudo權限
 cat  >> /etc/sudoers <<END
