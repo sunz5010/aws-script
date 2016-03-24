@@ -7,8 +7,6 @@ printhelp() {
 
 while [ "$1" != "" ]; do
   case "$1" in
-    -u    | --username )             ACCOUNT=$2; shift 2 ;;
-    -p    | --password )             PASSWORD=$2; shift 2 ;;
     -h    | --help )            echo "$(printhelp)"; exit; shift; break ;;
   esac
 done
@@ -21,12 +19,7 @@ fi
 
 #check initial.sh 
 if [ ! -e /tmp/initial ]; then
-  while [ -z $ACCOUNT ]
-  do
-      echo 'need to set account'
-      read ACCOUNT
-  done
-  ./initial.sh -u $ACCOUNT -p ${PASSWORD}
+  ./initial.sh
 fi
 
 yum -y install memcached|| 
@@ -42,6 +35,8 @@ yum -y install libmemcached||
 
 #setting memcached capacity
 sed -i 's/1024/10240/g' /etc/sysconfig/memcached
+sed -in '/CACHESIZE/d' /etc/sysconfig/memcached
+echo 'CACHESIZE="600"' >> /etc/sysconfig/memcached
 
 
 chkconfig memcached on
