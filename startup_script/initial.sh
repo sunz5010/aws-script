@@ -12,15 +12,11 @@
 printhelp() {
     echo "
        this package can install nginx 、 cache 、 phalcon 、 mongodb
-       -u,    --username             Enter the Username
-       -p,    --password             Enter the Password
     "
 }
 
 while [ "$1" != "" ]; do
   case "$1" in
-    -u    | --username )             ACCOUNT=$2; shift 2 ;;
-    -p    | --password )             PASSWORD=$2; shift 2 ;;
     -h    | --help )            echo "$(printhelp)"; exit; shift; break ;;
   esac
 done
@@ -30,11 +26,6 @@ if [ `id -u` -ne 0 ]
 then
   echo "Need root, try with sudo"
   exit 0
-fi
-
-if [ -z $ACCOUNT ]; then
-    echo 'need to set account'
-    exit 0
 fi
 
 
@@ -70,35 +61,9 @@ END
 #step 6 : install nvm & npm
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
 nvm install 5 
-npm install -g pm2
+npm install -g pm2 #global
 
-#step 7 : add user
-CHECKACCOUNT=`grep -n $ACCOUNT /etc/passwd`
-echo $CHECKACCOUNT
-if [ -z $CHECKACCOUNT ]; then
-  useradd $ACCOUNT
-  echo "$ACCOUNT:$PASSWORD" | sudo chpasswd
-fi
-
-# add key to the new user
-mkdir -p /home/$ACCOUNT/.ssh
-cp /home/ec2-user/.ssh/authorized_keys /home/$ACCOUNT/.ssh/authorized_keys
-
-# change this folder right and owner
-chown $ACCOUNT: -R  /home/$ACCOUNT/.ssh
-chmod 700 /home/$ACCOUNT/.ssh
-
-#give new user right
-cat  >> /etc/sudoers <<END
-$ACCOUNT ALL=(ALL:ALL) ALL
-END
 
 #step 7 : initial
 touch /tmp/initial
-
-#step 8 : delete default user
-#find / -user ec2-user -exec rm -r {} \;
-#default=`grep -n 'ec2-user' /etc/passwd | cut -d : -f 1`
-#sed "$default'd'" /etc/passwd
-#rm -r /home/ec2-use
 
