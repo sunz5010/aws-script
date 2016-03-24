@@ -21,7 +21,7 @@ then
 fi
 
 #step 1 : 取得鑰匙名稱
-echo -n 'key name : '
+echo -n 'key name(only name) : '
 read key
 while [ ! -e $key'.pem' ]
 do
@@ -40,9 +40,7 @@ do
 done 
 
 useradd $ACCOUNT
-echo -n 'input password : '
-read PASSWORD
-echo "$ACCOUNT:$PASSWORD" | sudo chpasswd
+passwd $ACCOUNT
 
 #step 3 : webserver
 echo -n 'install webserver(yes/no/stop)? '
@@ -51,7 +49,7 @@ if [ $installWebserver == 'yes' ]; then
     echo -n 'webserver IP : '
     read webserver
     scp -i $key'.pem' -r initial.sh nginx.sh phalcon.sh ec2-user@$webserver:/home/ec2-user
-    ssh -i $key'.pem' "ec2-user@$webserver"  "sudo ./nginx.sh -u $ACCOUNT -p $PASSWORD"
+    ssh -i $key'.pem' "ec2-user@$webserver"  "sudo ./nginx.sh "
 fi
 
 #step 4 : database
@@ -61,7 +59,7 @@ if [ $installMongodb == 'yes' ]; then
     echo -n 'database IP : '
     read database
     scp -i $key'.pem' -r initial.sh mongodb.sh ec2-user@$database:/home/ec2-user
-    ssh -i $key'.pem' "ec2-user@$database"  "sudo ./mongodb.sh -u ${ACCOUNT} -p ${PASSWORD}"
+    ssh -i $key'.pem' "ec2-user@$database"  "sudo ./mongodb.sh"
 elif [ $installMongodb == 'stop' ]; then
     exit 0 ;
 fi
@@ -73,7 +71,7 @@ if [ $installMemcache == 'yes' ]; then
     echo -n 'memcache IP : '
     read memcache
     scp -i $key'.pem' -r initial.sh memcache.sh ec2-user@$memcache:/home/ec2-user
-    ssh -i $key'.pem' "ec2-user@$memcache"  "sudo ./memcache.sh -u ${ACCOUNT} -p ${PASSWORD}"
+    ssh -i $key'.pem' "ec2-user@$memcache"  "sudo ./memcache.sh "
 elif [ $installMemcache == 'stop' ]; then
     exit 0 ;
 fi
@@ -82,6 +80,13 @@ fi
 cp /home/ec2-user/package/$key'.pem' /home/$key'.pem'
 ./initial.sh -u $ACCOUNT 
 mv /home/$key'.pem' /home/$ACCOUNT/
+
+#step 7 : delete default user
+find / -user ec2-user -exec rm -r {} \;
+default=`grep -n 'ec2-user' /etc/passwd | cut -d : -f 1`
+sed "$default'd'" /etc/passwd
+rm -r /home/ec2-use
+
 
 #stop 7 : 重啟
 reboot
