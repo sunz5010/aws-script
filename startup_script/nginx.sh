@@ -258,10 +258,6 @@ pecl install mongodb ||
   echo 'mongodb can not install'
 }
 
-cat >> /etc/php.ini <<END
-extension=mongo.so
-END
-
 #phalcon extension
 touch /etc/php.d/phalcon.ini
 cat > /etc/php.d/phalcon.ini <<END
