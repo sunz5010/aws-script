@@ -4,7 +4,7 @@
 #3.修改上傳下載文件限制
 #4.設訂編碼語言
 #5.修改開放的port
-#6.新增使用者(新增、載入authorized_keys、修改目錄有者、給予sudo 權限)
+#6.安裝nvm&npm
 #7.刪除預設使用者
 #8.已初始化標記
 #-----------------
@@ -27,7 +27,6 @@ then
   echo "Need root, try with sudo"
   exit 0
 fi
-
 
 #step 1 : update & install git
 yum -y update ||
@@ -59,10 +58,9 @@ export LC_ALL
 END
 
 #step 6 : install nvm & npm
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
-nvm install 5 
-npm install -g pm2 #global
-
+sudo curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
+sudo nvm install 5 
+sudo npm install -g pm2 #global
 
 #step 7 : initial
 touch /tmp/initial
