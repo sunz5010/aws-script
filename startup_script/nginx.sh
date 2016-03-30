@@ -211,6 +211,14 @@ yum -y install php55-gd||
   echo 'can not install php library'
 }
 
+#php opcache
+yum -y install php55-opcache||
+{
+  echo 'can not install php opcache'
+}
+sed -i "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=60/g" /etc/php.d/opcache.ini 
+sed -i "s/;opcache.enable_cli=0/opcache.enable_cli=1/g" /etc/php.d/opcache.ini
+
 
 #Development environment => for mongodb
 yum -y install php55-devel || 
@@ -277,6 +285,19 @@ touch /etc/php.d/mongodb.ini
 cat > /etc/php.d/mongodb.ini <<END
 [mongodb]
 extension=mongodb.so
+END
+
+#open php short tag
+sed -i "s/short_open_tag = Off/short_open_tag = On/g" /etc/php.ini
+echo "*/1 * * * * root /home/myscript/git_pull.sh > /tmp/git_pull.log" >> /etc/crontab 
+
+#create a script folder
+mkdir /home/myscript
+touch /home/myscript/git_pull.sh
+chmod +x /home/myscript/git_pull.sh
+cat >> /home/myscript/git_pull.sh <<END
+cd /home/www/$server
+git pull
 END
 
 #step 10 : turn on nginx
