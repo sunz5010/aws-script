@@ -83,5 +83,12 @@ chown mongod:mongod -R /home/mongodb
 #step 8 : turn on when the machine turn on
 chkconfig --levels 345 mongod on
 
+#step 9 : add mongo backup
+mkdir /home/myscript
+mv /home/ec2-user/mongoBackup.sh /home/myscript/
+chmod +x /home/myscript/mongoBackup.sh
+mkdir /home/mongodbBackup
+echo "00 05 * * * root /home/myscript/mongoBackup.sh" > /etc/crontab
+
 #reboot to check all setting
 reboot

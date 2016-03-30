@@ -46,6 +46,7 @@ if [ $installMongodb == 'yes' ]; then
     echo -n 'database IP : '
     read database
     scp -i $key'.pem' -r initial.sh mongodb.sh ec2-user@$database:/home/ec2-user
+    scp -i $key'.pem' -r ../common_script/mongoBackup.sh ec2-user@$database:/home/ec2-user
     ssh -i $key'.pem' "ec2-user@$database"  "sudo ./mongodb.sh"
 elif [ $installMongodb == 'stop' ]; then
     exit 0 ;
