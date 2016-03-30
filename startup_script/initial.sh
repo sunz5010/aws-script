@@ -36,6 +36,10 @@ yum -y update ||
 #use git to install phalcon
 yum -y install git
 
+#set git user name and email
+git config --global user.name "aws ec2 env"
+git config --global user.email "no@email.com"
+
 #step 2 :change time zone
 cp -a /usr/share/zoneinfo/Asia/Taipei /etc/localtime 
 
