@@ -90,5 +90,8 @@ sudo chmod +x /home/myscript/mongoBackup.sh
 sudo mkdir /home/mongodbBackup
 sudo echo "00 05 * * * root /home/myscript/mongoBackup.sh" >> /etc/crontab
 
+#step 10 : add slow log
+sed -i.bak "s/#operationProfiling:/&\noperationProfiling:\n  slowOpThresholdMs: 800\n  mode: slowOp/" /etc/mongod.conf
+
 #reboot to check all setting
 reboot
