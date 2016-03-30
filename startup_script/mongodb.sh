@@ -84,11 +84,11 @@ chown mongod:mongod -R /home/mongodb
 chkconfig --levels 345 mongod on
 
 #step 9 : add mongo backup
-mkdir /home/myscript
-mv /home/ec2-user/mongoBackup.sh /home/myscript/
-chmod +x /home/myscript/mongoBackup.sh
-mkdir /home/mongodbBackup
-echo "00 05 * * * root /home/myscript/mongoBackup.sh" > /etc/crontab
+sudo mkdir /home/myscript
+sudo mv /home/ec2-user/mongoBackup.sh /home/myscript/
+sudo chmod +x /home/myscript/mongoBackup.sh
+sudo mkdir /home/mongodbBackup
+sudo echo "00 05 * * * root /home/myscript/mongoBackup.sh" >> /etc/crontab
 
 #reboot to check all setting
 reboot

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+#set -eo pipefail
 #
 # MongoDB Backup Script
 # VER. 0.20
@@ -102,7 +102,7 @@ LATEST="yes"
 LATESTLINK="yes"
 
 # Use oplog for point-in-time snapshotting.
-OPLOG="yes"
+#OPLOG="yes"
 
 # Choose other Server if is Replica-Set Master
 REPLICAONSLAVE="yes"
