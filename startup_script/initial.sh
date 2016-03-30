@@ -47,8 +47,8 @@ service sshd restart
 cat >> /etc/security/limits.conf <<END
 *   soft    nproc unlimited
 *   hard    nproc unlimited
-*   soft    nofile 10240
-*   hard    nofile 20480
+*   soft    nofile 32000
+*   hard    nofile 32000
 END
 
 #step 5 : setting language
