@@ -65,41 +65,46 @@ elif [ $installMemcache == 'stop' ]; then
 fi
 
 
-
-#step 5 : 新建帳戶
-echo -n 'add new user name : '
-read ACCOUNT
-while [ -z $ACCOUNT ]
-do
-    echo 'need to set account'
+#step 5-0 : set up manager
+echo -n 'install manager(yes/no/stop)? '
+read installManager
+if [ $installManager == 'yes' ]; then
+    #step 5 : 新建帳戶
+    echo -n 'add new user name : '
     read ACCOUNT
-done 
+    while [ -z $ACCOUNT ]
+    do
+        echo 'need to set account'
+        read ACCOUNT
+    done 
 
-useradd $ACCOUNT
-passwd $ACCOUNT
+    useradd $ACCOUNT
+    passwd $ACCOUNT
 
-# 新增ssh key到新的使用者資料夾
-mkdir -p /home/$ACCOUNT/.ssh
-cp /home/ec2-user/.ssh/authorized_keys /home/$ACCOUNT/.ssh/authorized_keys
-chown $ACCOUNT: -R /home/$ACCOUNT
+    # 新增ssh key到新的使用者資料夾
+    mkdir -p /home/$ACCOUNT/.ssh
+    cp /home/ec2-user/.ssh/authorized_keys /home/$ACCOUNT/.ssh/authorized_keys
+    chown $ACCOUNT: -R /home/$ACCOUNT
 
-# 給予新使用者sudo權限
-cat  >> /etc/sudoers <<END
-$ACCOUNT ALL=(ALL:ALL) ALL
-END
+    # 給予新使用者sudo權限
+    cat  >> /etc/sudoers <<END
+    $ACCOUNT ALL=(ALL:ALL) ALL
+    END
 
-# 鑰匙處理 & 初始化
-cp $key'.pem' /home/$ACCOUNT/$key'.pem'
-./initial.sh 
-
-
-#step 6 : 刪除預設使用者
-find / -user ec2-user -exec rm -r {} \;
-default=`grep -n 'ec2-user' /etc/passwd | cut -d : -f 1`
-sed "$default'd'" /etc/passwd
-rm -r /home/ec2-use
+    # 鑰匙處理 & 初始化
+    cp $key'.pem' /home/$ACCOUNT/$key'.pem'
+    ./initial.sh 
 
 
-#stop 7 : 重啟
-reboot
+    #step 6 : 刪除預設使用者
+    find / -user ec2-user -exec rm -r {} \;
+    default=`grep -n 'ec2-user' /etc/passwd | cut -d : -f 1`
+    sed "$default'd'" /etc/passwd
+    rm -r /home/ec2-use
 
+
+    #stop 7 : 重啟
+    reboot
+elif [ $installMemcache == 'stop' ]; then
+    exit 0 ;
+fi

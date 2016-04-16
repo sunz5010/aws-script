@@ -1,7 +1,7 @@
 printhelp() {
     echo "
     	this is for installing memcache , its library and
-    	changing its volume (1024->10240).
+    	changing its volume (1024->102400).
     "
 }
 
@@ -34,7 +34,7 @@ yum -y install libmemcached||
 }
 
 #setting memcached capacity
-sed -i 's/1024/10240/g' /etc/sysconfig/memcached
+sed -i 's/1024/102400/g' /etc/sysconfig/memcached
 sed -in '/CACHESIZE/d' /etc/sysconfig/memcached
 echo 'CACHESIZE="600"' >> /etc/sysconfig/memcached
 
