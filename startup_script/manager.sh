@@ -87,9 +87,7 @@ if [ $installManager == 'yes' ]; then
     chown $ACCOUNT: -R /home/$ACCOUNT
 
     # 給予新使用者sudo權限
-    cat  >> /etc/sudoers <<END
-    $ACCOUNT ALL=(ALL:ALL) ALL
-    END
+    echo "$ACCOUNT ALL=(ALL:ALL) ALL" >> /etc/sudoers
 
     # 鑰匙處理 & 初始化
     cp $key'.pem' /home/$ACCOUNT/$key'.pem'
