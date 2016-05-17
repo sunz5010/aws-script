@@ -157,7 +157,7 @@ phpinfo();
     'last_name' => 'Mongo'
 );
 
-\$user = $cUsers->findOne($user);
+\$user = \$cUsers->findOne(\$user);
 echo 'mongo connect successfully if the bottom data be showed!'
 print_r(\$user);
 END
