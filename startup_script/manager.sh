@@ -28,6 +28,14 @@ do
     read key
 done
 
+ #step 2 :開NAT
+    echo -n 'subnetIp '
+    read subnetIp
+    iptables -t nat -A POSTROUTING -o eth0 -s $subetIp -j MASQUERADE
+    echo "sudo iptables -t nat -A POSTROUTING -o eth0 -s $subetIp -j MASQUERADE" >> /etc/rc.local 
+    sed -i "s/net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/g" /etc/sysctl.conf
+    sysctl -p
+
 
 #step 2 : webserver
 echo -n 'install webserver(yes/no/stop)? '
@@ -100,12 +108,6 @@ if [ $installManager == 'yes' ]; then
     sed "$default'd'" /etc/passwd
     rm -r /home/ec2-use
     
-    #step 7 :開NAT
-    echo -n 'subnetIp '
-    read subnetIp
-    iptables -t nat -A POSTROUTING -o eth0 -s $subetIp -j MASQUERADE
-    echo "sudo iptables -t nat -A POSTROUTING -o eth0 -s $subetIp -j MASQUERADE" >> /etc/rc.local 
-    sed -i "s/net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/g" /etc/sysctl.conf
 
     #stop 8 : 重啟
     reboot
