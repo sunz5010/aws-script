@@ -99,9 +99,14 @@ if [ $installManager == 'yes' ]; then
     default=`grep -n 'ec2-user' /etc/passwd | cut -d : -f 1`
     sed "$default'd'" /etc/passwd
     rm -r /home/ec2-use
+    
+    #step 7
+    echo -n 'subnetIp '
+    read subnetIp
+    iptables -t nat -A POSTROUTING -o eth0 -s $subetIp -j MASQUERADE
+    echo "sudo iptables -t nat -A POSTROUTING -o eth0 -s $subetIp -j MASQUERADE" >> /etc/rc.local 
 
-
-    #stop 7 : 重啟
+    #stop 8 : 重啟
     reboot
 elif [ $installMemcache == 'stop' ]; then
     exit 0 ;
