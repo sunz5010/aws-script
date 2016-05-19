@@ -28,7 +28,7 @@ do
     read key
 done
 
- #step 2 :開NAT
+ #step 2 : 開NAT
     echo -n 'subnetIp '
     read subnetIp
     iptables -t nat -A POSTROUTING -o eth0 -s $subnetIp -j MASQUERADE
@@ -37,7 +37,7 @@ done
     sysctl -p
 
 
-#step 2 : webserver
+#step 3 : webserver
 echo -n 'install webserver(yes/no/stop)? '
 read installWebserver
 if [ $installWebserver == 'yes' ]; then
@@ -47,7 +47,7 @@ if [ $installWebserver == 'yes' ]; then
     ssh -i $key'.pem' "ec2-user@$webserver"  "sudo ./nginx.sh "
 fi
 
-#step 3 : database
+#step 4 : database
 echo -n 'install mongodb(yes/no/stop)? '
 read installMongodb
 if [ $installMongodb == 'yes' ]; then
@@ -60,7 +60,7 @@ elif [ $installMongodb == 'stop' ]; then
     exit 0 ;
 fi
 
-#step 4 : memcache
+#step 5 : memcache
 echo -n 'install memcache(yes/no/stop)? '
 read installMemcache
 if [ $installMemcache == 'yes' ]; then
@@ -73,11 +73,11 @@ elif [ $installMemcache == 'stop' ]; then
 fi
 
 
-#step 5-0 : set up manager
+#step 6-0 : set up manager
 echo -n 'install manager(yes/no/stop)? '
 read installManager
 if [ $installManager == 'yes' ]; then
-    #step 5 : 新建帳戶
+    #step 6 : 新建帳戶
     echo -n 'add new user name : '
     read ACCOUNT
     while [ -z $ACCOUNT ]
@@ -102,7 +102,7 @@ if [ $installManager == 'yes' ]; then
     ./initial.sh 
 
 
-    #step 6 : 刪除預設使用者
+    #step 7 : 刪除預設使用者
     find / -user ec2-user -exec rm -r {} \;
     default=`grep -n 'ec2-user' /etc/passwd | cut -d : -f 1`
     sed "$default'd'" /etc/passwd
