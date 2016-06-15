@@ -29,7 +29,7 @@ do
 done
 
  #step 2 : 開NAT
-    echo -n 'subnetIp '
+    echo -n '想對外連線的網段(含CIDR block => ex:192.168.2.0/24 ) '
     read subnetIp
     iptables -t nat -A POSTROUTING -o eth0 -s $subnetIp -j MASQUERADE
     echo "sudo iptables -t nat -A POSTROUTING -o eth0 -s $subnetIp -j MASQUERADE" >> /etc/rc.local 
