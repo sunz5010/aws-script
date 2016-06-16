@@ -42,7 +42,7 @@ sed -i "s/\/var\/lib\/mongo/\/home\/mongodb/" /etc/mongod.conf
 #setp 5.5 : set replication Name
 echo -n 'please enter the replication Name? '
 read replicaName
-sed -i "s/#replication:/replication:\n replSetName:$replicaName/g" /etc/mongod.conf
+sed -i "s/#replication:/replication:\n  replSetName: $replicaName/g" /etc/mongod.conf
 
 #step 6 : close transparent-huge-pages
 #reference: https://docs.mongodb.org/manual/tutorial/transparent-huge-pages/
