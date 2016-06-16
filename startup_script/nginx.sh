@@ -126,9 +126,6 @@ server {
 }
 END
 
-echo -n 'please enter db IP which you want to connect? '
-read DBIP
-
 #create the file testing php and mongo
 mkdir -p /home/www/$web/public
 touch /home/www/$web/public/index.php
@@ -137,29 +134,6 @@ cat >> /home/www/$web/public/index.php << END
 //php test
 phpinfo();
 
-//mongo test
-\$dbhost = '$DBIP';
-\$dbname = 'my_mongodb';
-
-\$mongoClient = new \MongoClient('mongodb://' . \$dbhost);
-\$db = \$mongoClient->\$dbname;
-
-\$cUsers = \$db->users;
-\$user = array(
-    'first_name' => 'SJ',
-    'last_name' => 'Mongo',
-    'roles' => array('developer','bugmaker')
-);
-
-\$cUsers->save($user);
-\$user = array(
-    'first_name' => 'SJ',
-    'last_name' => 'Mongo'
-);
-
-\$user = \$cUsers->findOne(\$user);
-echo 'mongo connect successfully if the bottom data be showed!'
-print_r(\$user);
 END
 
 chown nginx:nginx -R /home/www
