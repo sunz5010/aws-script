@@ -28,14 +28,19 @@ do
     read key
 done
 
- #step 2 : 開NAT
-    echo -n '想對外連線的網段(含CIDR block => ex:192.168.2.0/24 ) '
+#step 2 : 開NAT
+echo -n 'do you wanna set NAT to private subnet(yes/no/stop)? '
+read installNAT
+if [ $installNAT == 'yes' ]; then
+    echo -n '想對外連線的網段private subnet(含CIDR block => ex:192.168.2.0/24 ) '
     read subnetIp
     iptables -t nat -A POSTROUTING -o eth0 -s $subnetIp -j MASQUERADE
     echo "sudo iptables -t nat -A POSTROUTING -o eth0 -s $subnetIp -j MASQUERADE" >> /etc/rc.local 
     sed -i "s/net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/g" /etc/sysctl.conf
     sysctl -p
-
+elif [ $installNAT == 'stop' ]; then
+    exit 0 ;
+fi
 
 #step 3 : webserver
 echo -n 'install webserver(yes/no/stop)? '
@@ -45,6 +50,8 @@ if [ $installWebserver == 'yes' ]; then
     read webserver
     scp -i $key'.pem' -r initial.sh nginx.sh phalcon.sh ec2-user@$webserver:/home/ec2-user
     ssh -i $key'.pem' "ec2-user@$webserver"  "sudo ./nginx.sh "
+elif [ $installWebserver == 'stop' ]; then
+    exit 0 ;
 fi
 
 #step 4 : database
