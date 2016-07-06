@@ -71,8 +71,8 @@ case \$1 in
       return 0
     fi
 
-    echo 'never' > ${thp_path}/enabled
-    echo 'never' > ${thp_path}/defrag
+    echo 'never' > \${thp_path}/enabled
+    echo 'never' > \${thp_path}/defrag
 
     unset thp_path
     ;;
