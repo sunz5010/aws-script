@@ -61,7 +61,7 @@ cat >> /etc/init.d/disable-transparent-hugepages <<END
 #                    database performance.
 ### END INIT INFO
 
-case $1 in
+case \$1 in
   start)
     if [ -d /sys/kernel/mm/transparent_hugepage ]; then
       thp_path=/sys/kernel/mm/transparent_hugepage
