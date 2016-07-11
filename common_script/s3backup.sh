@@ -1,5 +1,9 @@
 #記得要設定aws configure
 #region name為ap-northeast-1
+#
+#執行：aws configure
+#ref: http://docs.aws.amazon.com/zh_cn/cli/latest/userguide/cli-chap-getting-started.html
+#
 #!/bin/bash
 
 #init
