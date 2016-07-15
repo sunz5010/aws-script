@@ -1,10 +1,11 @@
 #this one is for manager ec2 
 #1.key name
-#2.setting webserver
-#3.setting database
-#4.setting memcache
-#5.新建帳號帳號 & 鑰匙處理 & 初始化(初始化將刪除ec2-user文件夾)
-#6.重啟
+#2.setting init private machine
+#3.setting webserver
+#4.setting database
+#5.setting memcache
+#6.新建帳號帳號 & 鑰匙處理 & 初始化(初始化將刪除ec2-user文件夾)
+#7.重啟
 
 printhelp() {
     echo "
@@ -39,6 +40,18 @@ if [ $installNAT == 'yes' ]; then
     sed -i "s/net.ipv4.ip_forward = 0/net.ipv4.ip_forward = 1/g" /etc/sysctl.conf
     sysctl -p
 elif [ $installNAT == 'stop' ]; then
+    exit 0 ;
+fi
+
+#step 3 : init private machine
+echo -n 'install init machine only (yes/no/stop)? '
+read installInitMachine
+if [ $installInitMachine == 'yes' ]; then
+    echo -n 'initserver IP : '
+    read initserver
+    scp -i $key'.pem' -r initial.sh ec2-user@$initserver:/home/ec2-user
+    ssh -i $key'.pem' "ec2-user@$initserver"  "sudo ./initial.sh "
+elif [ $installInitMachine == 'stop' ]; then
     exit 0 ;
 fi
 
