@@ -45,7 +45,7 @@ mkdir www
 #修改nginx檔案
 sudo sed -i -e "s/listen 80/listen 8080/i" /etc/nginx/sites-available/default
 sudo sed -i -e "s/listen \[\:\:\]\:80/listen \[\:\:\]\:8080/i" /etc/nginx/sites-available/default
-sudo sed -i -e "s/root \/usr\/share\/nginx\/html;/\/home\/ubuntu\/workspace\/www/i" /etc/nginx/sites-available/default
+sudo sed -i -e "s/root \/usr\/share\/nginx\/html;/root \/home\/ubuntu\/workspace\/www;/i" /etc/nginx/sites-available/default
 sudo sed -i -e "s/index index\.html index\.htm;/index index\.php index\.html index\.htm;/i" /etc/nginx/sites-available/default
 
 #請自行解開nginx php那段
