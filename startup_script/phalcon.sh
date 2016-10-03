@@ -36,7 +36,10 @@ chmod 0600 /var/cache/swap/swap0
 mkswap /var/cache/swap/swap0 
 swapon /var/cache/swap/swap0
 
-git clone --depth=1 git://github.com/phalcon/cphalcon.git
+#新版
+#git clone --depth=1 git://github.com/phalcon/cphalcon.git
+#舊版2.0.x
+git clone --depth=1 git://github.com/phalcon/cphalcon.git --branch 2.0.x --single-branch
 
 cd cphalcon/build
 
