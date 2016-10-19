@@ -9,8 +9,8 @@ cd cphalcon/build
 sudo ./install
 
 #加入php ini file
-sudo echo "extension=phalcon.so" > /etc/php5/fpm/conf.d/phalcon.ini
-sudo echo "extension=phalcon.so" > /etc/php5/cli/conf.d/phalcon.ini
+sudo sh -c "echo 'extension=phalcon.so' >> /etc/php5/mods-available/phalcon.ini"
+sudo php5enmod phalcon
 
 #移除cphalcon
 cd ~/workspace
