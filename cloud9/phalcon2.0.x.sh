@@ -1,7 +1,7 @@
 #change directory
 cd ~/workspace
 
-#複製phalcon 2.1版本
+#複製phalcon 2.0.x版本
 git clone --depth=1 git://github.com/phalcon/cphalcon.git --branch 2.0.x --single-branch
 
 #編譯
