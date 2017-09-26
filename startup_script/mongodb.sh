@@ -22,13 +22,14 @@ if [ ! -e /tmp/initial ]; then
 fi
 
 #step 3 : install mongodb - build mongo yum
-touch /etc/yum.repos.d/mongodb-org-3.2.repo
-cat >> /etc/yum.repos.d/mongodb-org-3.2.repo <<END
-[mongodb-org-3.2]
+touch /etc/yum.repos.d/mongodb-org-3.4.repo
+cat >> /etc/yum.repos.d/mongodb-org-3.4.repo <<END
+[mongodb-org-3.4]
 name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/3.2/x86_64/
-gpgcheck=0
-enabled=1 
+baseurl=https://repo.mongodb.org/yum/amazon/2013.03/mongodb-org/3.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
 END
 
 #step 4 :install mongodb
